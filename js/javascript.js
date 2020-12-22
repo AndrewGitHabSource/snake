@@ -4,12 +4,12 @@ function snake() {
     let context = Object;
     let width = 500;
     let height = 500;
-    let map = matrix(count, count);
     let snake = matrix(1, 2);
     let lastTime = 0;
     let requestId;
     let gameOver = false;
     let direction = 'right';
+    let target = [7, 7];
 
     function load() {
         let canvas = document.getElementById('canvas');
@@ -46,13 +46,23 @@ function snake() {
         }, () => new Array(n).fill(0));
     }
 
+    function random(min, max) {
+        return parseInt(Math.random() * (max - min) + min);
+    }
+
+    function createTarget() {
+        target = [random(0, 25), random(0, 25)];
+    }
+
     function drawSnake() {
+        context.clearRect(0, 0, 800, 800);
+        drawField();
+        drawTarget();
+
         snake.forEach((e) => {
             let x = e[0] * space;
             let y = e[1] * space;
-
-            context.clearRect(0, 0, 800, 800);
-            drawField();
+            console.log(x);
 
             context.fillStyle = "#ff33d8";
             context.beginPath();
@@ -61,36 +71,52 @@ function snake() {
         });
     }
 
-    function changeDirection() {
+    function drawTarget() {
+        context.fillStyle = "#ff33d8";
+        context.beginPath();
+        context.fillRect(target[0] * space, target[1] * space, space, space);
+        context.stroke();
+
+        if (snake[0][0] === target[0] && snake[0][1] === target[1]) {
+            createTarget();
+            increase();
+        }
+    }
+
+    function increase() {
+        let lastItem = snake[snake.length - 1];
+        if (direction == 'left' || direction == 'right') {
+            snake.push([lastItem[0] - 1, lastItem[1]]);
+        } else {
+            snake.push([lastItem[0], lastItem[1] - 1]);
+        }
+    }
+
+    function changeDirection(start) {
         if (direction == 'top') {
-            snake = snake.map((item, i, arr) => {
-                let x = item[0];
-                let y = item[1] - 1;
-
-                return [x, y];
-            });
+            snake[0][1]--;
+            for (let i = 1; i < snake.length; i++){
+                snake[i][1] = snake[i - 1][1] + 1;
+                snake[i][0] = snake[0][0];
+            }
         } else if (direction == 'bottom') {
-
-            snake = snake.map((item, i, arr) => {
-                let x = item[0];
-                let y = item[1] + 1;
-
-                return [x, y];
-            });
+            snake[0][1]++;
+            for (let i = 1; i < snake.length; i++){
+                snake[i][1] = snake[i - 1][1] - 1;
+                snake[i][0] = snake[0][0];
+            }
         } else if (direction == 'left') {
-            snake = snake.map((item, i, arr) => {
-                let x = item[0] - 1;
-                let y = item[1];
-
-                return [x, y];
-            });
+            snake[0][0]--;
+            for (let i = 1; i < snake.length; i++){
+                snake[i][1] = snake[0][1];
+                snake[i][0] = snake[i - 1][0] + 1;
+            }
         } else if (direction == 'right') {
-            snake = snake.map((item, i, arr) => {
-                let x = item[0] + 1;
-                let y = item[1];
-
-                return [x, y];
-            });
+            snake[0][0]++;
+            for (let i = 1; i < snake.length; i++){
+                snake[i][1] = snake[0][1];
+                snake[i][0] = snake[i - 1][0] - 1;
+            }
         }
     }
 
@@ -98,17 +124,19 @@ function snake() {
         requestId = requestAnimationFrame(moveSnake);
 
         let dt = Number(Math.floor(timestamp / 1000));
+        let start = 0;
 
-        if (timestamp >= lastTime + 1000) {
-            snake.forEach((element, index) => {
-                gameOver = checkGame(element);
-                if (gameOver === true) {
-                    cancelAnimationFrame(requestId);
-                    alert('Game over');
-                } else {
-                    changeDirection();
-                }
-            });
+        if (timestamp >= lastTime + 400) {
+            let element = snake[0];
+
+            gameOver = checkGame(element);
+            if (gameOver === true) {
+                cancelAnimationFrame(requestId);
+                alert('Game over');
+            } else {
+                changeDirection(start);
+            }
+
             drawSnake();
 
             lastTime = timestamp;
