@@ -6,10 +6,13 @@ function snake() {
     let height = 500;
     let snake = matrix(1, 2);
     let lastTime = 0;
-    let requestId;
+    let requestAnimationId;
     let gameOver = false;
     let direction = 'right';
     let target = [7, 7];
+    let length = snake.length;
+    let start = length - 1;
+
 
     function load() {
         let canvas = document.getElementById('canvas');
@@ -62,7 +65,6 @@ function snake() {
         snake.forEach((e) => {
             let x = e[0] * space;
             let y = e[1] * space;
-            console.log(x);
 
             context.fillStyle = "#ff33d8";
             context.beginPath();
@@ -90,51 +92,40 @@ function snake() {
         } else {
             snake.push([lastItem[0], lastItem[1] - 1]);
         }
+        length++;
     }
 
-    function changeDirection(start) {
+    function changeDirection() {
+        for (let i = snake.length - 1; i > 0; i--){
+            snake[i][0] = snake[i - 1][0];
+            snake[i][1] = snake[i - 1][1];
+        }
+
         if (direction == 'top') {
             snake[0][1]--;
-            for (let i = 1; i < snake.length; i++){
-                snake[i][1] = snake[i - 1][1] + 1;
-                snake[i][0] = snake[0][0];
-            }
         } else if (direction == 'bottom') {
             snake[0][1]++;
-            for (let i = 1; i < snake.length; i++){
-                snake[i][1] = snake[i - 1][1] - 1;
-                snake[i][0] = snake[0][0];
-            }
         } else if (direction == 'left') {
             snake[0][0]--;
-            for (let i = 1; i < snake.length; i++){
-                snake[i][1] = snake[0][1];
-                snake[i][0] = snake[i - 1][0] + 1;
-            }
         } else if (direction == 'right') {
             snake[0][0]++;
-            for (let i = 1; i < snake.length; i++){
-                snake[i][1] = snake[0][1];
-                snake[i][0] = snake[i - 1][0] - 1;
-            }
         }
     }
 
     function moveSnake(timestamp) {
-        requestId = requestAnimationFrame(moveSnake);
+        requestAnimationId = requestAnimationFrame(moveSnake);
 
         let dt = Number(Math.floor(timestamp / 1000));
-        let start = 0;
 
         if (timestamp >= lastTime + 400) {
             let element = snake[0];
 
             gameOver = checkGame(element);
             if (gameOver === true) {
-                cancelAnimationFrame(requestId);
+                cancelAnimationFrame(requestAnimationId);
                 alert('Game over');
             } else {
-                changeDirection(start);
+                changeDirection();
             }
 
             drawSnake();
