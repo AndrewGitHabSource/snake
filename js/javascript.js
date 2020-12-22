@@ -13,7 +13,6 @@ function snake() {
     let length = snake.length;
     let start = length - 1;
 
-
     function load() {
         let canvas = document.getElementById('canvas');
         if (canvas.getContext) {
@@ -62,9 +61,9 @@ function snake() {
         drawField();
         drawTarget();
 
-        snake.forEach((e) => {
-            let x = e[0] * space;
-            let y = e[1] * space;
+        snake.forEach((element) => {
+            let x = element[0] * space;
+            let y = element[1] * space;
 
             context.fillStyle = "#ff33d8";
             context.beginPath();
@@ -87,6 +86,7 @@ function snake() {
 
     function increase() {
         let lastItem = snake[snake.length - 1];
+
         if (direction == 'left' || direction == 'right') {
             snake.push([lastItem[0] - 1, lastItem[1]]);
         } else {
@@ -96,7 +96,7 @@ function snake() {
     }
 
     function changeDirection() {
-        for (let i = snake.length - 1; i > 0; i--){
+        for (let i = snake.length - 1; i > 0; i--) {
             snake[i][0] = snake[i - 1][0];
             snake[i][1] = snake[i - 1][1];
         }
@@ -115,8 +115,6 @@ function snake() {
     function moveSnake(timestamp) {
         requestAnimationId = requestAnimationFrame(moveSnake);
 
-        let dt = Number(Math.floor(timestamp / 1000));
-
         if (timestamp >= lastTime + 400) {
             let element = snake[0];
 
@@ -127,7 +125,6 @@ function snake() {
             } else {
                 changeDirection();
             }
-
             drawSnake();
 
             lastTime = timestamp;
