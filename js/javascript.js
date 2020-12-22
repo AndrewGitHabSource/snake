@@ -9,6 +9,7 @@ function snake() {
     let lastTime = 0;
     let requestId;
     let gameOver = false;
+    let direction = 'right';
 
     function load() {
         let canvas = document.getElementById('canvas');
@@ -18,6 +19,7 @@ function snake() {
             drawField();
             drawSnake();
             moveSnake();
+            addEvents();
         }
     }
 
@@ -59,6 +61,39 @@ function snake() {
         });
     }
 
+    function changeDirection() {
+        if (direction == 'top') {
+            snake = snake.map((item, i, arr) => {
+                let x = item[0];
+                let y = item[1] - 1;
+
+                return [x, y];
+            });
+        } else if (direction == 'bottom') {
+
+            snake = snake.map((item, i, arr) => {
+                let x = item[0];
+                let y = item[1] + 1;
+
+                return [x, y];
+            });
+        } else if (direction == 'left') {
+            snake = snake.map((item, i, arr) => {
+                let x = item[0] - 1;
+                let y = item[1];
+
+                return [x, y];
+            });
+        } else if (direction == 'right') {
+            snake = snake.map((item, i, arr) => {
+                let x = item[0] + 1;
+                let y = item[1];
+
+                return [x, y];
+            });
+        }
+    }
+
     function moveSnake(timestamp) {
         requestId = requestAnimationFrame(moveSnake);
 
@@ -67,12 +102,11 @@ function snake() {
         if (timestamp >= lastTime + 1000) {
             snake.forEach((element, index) => {
                 gameOver = checkGame(element);
-                if (gameOver === true){
+                if (gameOver === true) {
                     cancelAnimationFrame(requestId);
                     alert('Game over');
-                }
-                else{
-                    snake[index][0]++;
+                } else {
+                    changeDirection();
                 }
             });
             drawSnake();
@@ -90,6 +124,30 @@ function snake() {
         } else {
             return false;
         }
+    }
+
+    function addEvents() {
+        window.addEventListener('keypress', (event) => {
+            const keyName = event.key;
+
+            switch (keyName) {
+                case 'w':
+                    direction = 'top';
+                    break;
+                case 's':
+                    direction = 'bottom';
+                    break;
+                case 'd':
+                    direction = 'right';
+                    break;
+                case 'a':
+                    direction = 'left';
+                    break;
+                default:
+                    direction = 'right';
+                    break;
+            }
+        });
     }
 
     load();
